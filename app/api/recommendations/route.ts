@@ -3,15 +3,19 @@ import { model } from '@/lib/gemini';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
+    console.log('🔔 RECOMMENDATION API CALLED');
     try {
         const body = await request.json();
         const { cartItems } = body;
 
+        console.log('Received cart items:', JSON.stringify(cartItems, null, 2));
+
         if (!cartItems || cartItems.length === 0) {
+            console.log('No cart items, returning null');
             return NextResponse.json({ recommendation: null });
         }
 
-        // Build prompt from cart items
+        // Format cart items for AI
         const itemsList = cartItems
             .map((item: any) => `${item.name} (${item.quantity}x)`)
             .join(', ');
@@ -38,109 +42,100 @@ Respond in this exact JSON format:
   "reason": "brief explanation (1-2 sentences) of why this product complements their purchase and how it helps complete their project"
 }`;
 
-        // Call Gemini API
+        // Call Gemini AI - NO FALLBACK!
+        console.log('🤖 Calling Gemini 2.5 Flash AI...');
         const result = await model.generateContent(prompt);
         const response = result.response;
         const aiResponse = response.text().trim();
 
+        console.log('✅ AI Response:', aiResponse);
+
         // Parse JSON response
         const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-        const parsedResponse = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+        if (!jsonMatch) {
+            console.error('❌ No JSON found in AI response');
+            throw new Error('AI did not return valid JSON');
+        }
 
-        if (!parsedResponse) {
-            throw new Error('Invalid AI response format');
+        const parsedResponse = JSON.parse(jsonMatch[0]);
+        console.log('📦 Parsed:', parsedResponse);
+
+        if (!parsedResponse || !parsedResponse.productName) {
+            console.error('❌ Invalid response structure');
+            throw new Error('AI response missing productName');
         }
 
         const recommendedProductName = parsedResponse.productName;
         const reason = parsedResponse.reason;
 
-        // Search for the product in the database (removed mode: 'insensitive' for SQLite)
+        console.log('🔍 Looking for product:', recommendedProductName);
+
+        // Search for the AI-recommended product in database
         const product = await prisma.product.findFirst({
             where: {
-                name: {
-                    contains: recommendedProductName,
-                },
-                stockQuantity: {
-                    gt: 0, // Only recommend if in stock
-                },
+                name: { contains: recommendedProductName },
+                stockQuantity: { gt: 0 },
+                id: { notIn: cartItems.map((item: any) => item.productId) },
             },
         });
 
-        // If exact match not found, try fuzzy search
-        let finalProduct = product;
-        if (!finalProduct) {
-            // Try searching for products not in the cart
-            const cartProductIds = cartItems.map((item: any) => item.productId);
+        if (!product) {
+            console.log('⚠️ AI suggested product not found in inventory:', recommendedProductName);
+            // Try a looser search with key words
+            const keywords = recommendedProductName.split(' ');
+            for (const keyword of keywords) {
+                if (keyword.length < 3) continue; // Skip short words
 
-            const alternatives = await prisma.product.findMany({
-                where: {
-                    id: {
-                        notIn: cartProductIds,
-                    },
-                    stockQuantity: {
-                        gt: 0,
-                    },
-                },
-                take: 5,
-            });
-
-            // Use the first alternative if available
-            if (alternatives.length > 0) {
-                finalProduct = alternatives[0];
-            }
-        }
-
-        if (!finalProduct) {
-            return NextResponse.json({ recommendation: null });
-        }
-
-        return NextResponse.json({
-            recommendation: {
-                id: finalProduct.id,
-                name: finalProduct.name,
-                price: Number(finalProduct.price),
-                description: finalProduct.description,
-                stockQuantity: finalProduct.stockQuantity,
-                category: finalProduct.category,
-                reason: reason || 'Great addition to your purchase',
-            },
-        });
-    } catch (error: any) {
-        console.error('Recommendation error:', error);
-
-        // If Gemini API fails, return a fallback recommendation
-        try {
-            const fallbackProduct = await prisma.product.findFirst({
-                where: {
-                    stockQuantity: {
-                        gt: 0,
-                    },
-                },
-                orderBy: {
-                    stockQuantity: 'desc',
-                },
-            });
-
-            if (fallbackProduct) {
-                return NextResponse.json({
-                    recommendation: {
-                        id: fallbackProduct.id,
-                        name: fallbackProduct.name,
-                        price: Number(fallbackProduct.price),
-                        description: fallbackProduct.description,
-                        stockQuantity: fallbackProduct.stockQuantity,
-                        category: fallbackProduct.category,
-                        reason: 'Popular item that might interest you',
+                const altProduct = await prisma.product.findFirst({
+                    where: {
+                        name: { contains: keyword },
+                        stockQuantity: { gt: 0 },
+                        id: { notIn: cartItems.map((item: any) => item.productId) },
                     },
                 });
+
+                if (altProduct) {
+                    console.log('✅ Found alternative match:', altProduct.name);
+                    return NextResponse.json({
+                        recommendation: {
+                            id: altProduct.id,
+                            name: altProduct.name,
+                            price: Number(altProduct.price),
+                            description: altProduct.description,
+                            stockQuantity: altProduct.stockQuantity,
+                            category: altProduct.category,
+                            reason: reason || 'AI-recommended complementary product',
+                        },
+                    });
+                }
             }
-        } catch (fallbackError) {
-            console.error('Fallback recommendation error:', fallbackError);
+
+            // Product genuinely not found
+            return NextResponse.json({
+                recommendation: null,
+                message: 'AI suggestion not available in stock'
+            });
         }
 
-        return NextResponse.json(
-            { error: 'Failed to generate recommendation', recommendation: null },
-            { status: 500 }
-        );
+        console.log('✅ AI RECOMMENDATION SUCCESS:', product.name);
+        return NextResponse.json({
+            recommendation: {
+                id: product.id,
+                name: product.name,
+                price: Number(product.price),
+                description: product.description,
+                stockQuantity: product.stockQuantity,
+                category: product.category,
+                reason: reason || 'AI-recommended complementary product',
+            },
+        });
+
+    } catch (error: any) {
+        console.error('❌ AI Recommendation failed:', error.message);
+        // Return null instead of fallback
+        return NextResponse.json({
+            recommendation: null,
+            error: 'AI recommendation service temporarily unavailable'
+        });
     }
 }

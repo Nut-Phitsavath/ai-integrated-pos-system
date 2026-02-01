@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import ProductGrid from '@/components/pos/ProductGrid';
+import ProductSearch from '@/components/pos/ProductSearch';
 import CategorySidebar from '@/components/pos/CategorySidebar';
 import ShoppingCart from '@/components/pos/ShoppingCart';
 import RecommendationWidget from '@/components/pos/RecommendationWidget';
@@ -164,6 +165,12 @@ export default function CheckoutPage() {
 
                     {/* Center - Product Grid */}
                     <div className="col-span-12 lg:col-span-7">
+                        {/* Search Bar */}
+                        <div className="mb-6">
+                            <ProductSearch onAddToCart={handleAddToCart} />
+                        </div>
+
+                        {/* Product Grid */}
                         <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 mb-6">
                             <h2 className="text-xl font-bold text-gray-800 mb-4">Browse Products</h2>
                             <ProductGrid onAddToCart={handleAddToCart} selectedCategory={selectedCategory} />
