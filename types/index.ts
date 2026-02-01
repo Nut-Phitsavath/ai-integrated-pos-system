@@ -13,6 +13,8 @@ export interface Product {
     description: string | null;
     stockQuantity: number;
     category: string | null;
+    imageUrl?: string | null;
+    reason?: string; // AI recommendation reasoning
 }
 
 export interface Order {

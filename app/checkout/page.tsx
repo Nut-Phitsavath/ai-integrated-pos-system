@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import ProductSearch from '@/components/pos/ProductSearch';
+import ProductGrid from '@/components/pos/ProductGrid';
+import CategorySidebar from '@/components/pos/CategorySidebar';
 import ShoppingCart from '@/components/pos/ShoppingCart';
 import RecommendationWidget from '@/components/pos/RecommendationWidget';
 import type { Product, CartItem } from '@/types';
@@ -14,6 +15,7 @@ export default function CheckoutPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [lastOrderNumber, setLastOrderNumber] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('All');
     const router = useRouter();
 
     const handleAddToCart = (product: Product) => {
@@ -150,16 +152,26 @@ export default function CheckoutPage() {
             </header>
 
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-6 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Left Column - Product Search & Cart */}
-                    <div className="lg:col-span-2 space-y-6">
-                        {/* Product Search */}
-                        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-                            <h2 className="text-xl font-bold text-gray-800 mb-4">Search Products</h2>
-                            <ProductSearch onAddToCart={handleAddToCart} />
-                        </div>
+            <main className="max-w-[1920px] mx-auto px-6 py-8">
+                <div className="grid grid-cols-12 gap-6">
+                    {/* Left Sidebar - Categories */}
+                    <div className="col-span-12 lg:col-span-2">
+                        <CategorySidebar
+                            selectedCategory={selectedCategory}
+                            onSelectCategory={setSelectedCategory}
+                        />
+                    </div>
 
+                    {/* Center - Product Grid */}
+                    <div className="col-span-12 lg:col-span-7">
+                        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 mb-6">
+                            <h2 className="text-xl font-bold text-gray-800 mb-4">Browse Products</h2>
+                            <ProductGrid onAddToCart={handleAddToCart} selectedCategory={selectedCategory} />
+                        </div>
+                    </div>
+
+                    {/* Right Column - Cart & AI */}
+                    <div className="col-span-12 lg:col-span-3 space-y-6">
                         {/* Shopping Cart */}
                         <ShoppingCart
                             items={cart}
@@ -187,10 +199,8 @@ export default function CheckoutPage() {
                                 `Complete Transaction - $${total.toFixed(2)}`
                             )}
                         </button>
-                    </div>
 
-                    {/* Right Column - AI Recommendation */}
-                    <div className="lg:col-span-1">
+                        {/* AI Recommendation */}
                         <RecommendationWidget cartItems={cart} onAddToCart={handleAddToCart} />
                     </div>
                 </div>

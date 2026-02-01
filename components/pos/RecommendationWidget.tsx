@@ -66,14 +66,29 @@ export default function RecommendationWidget({ cartItems, onAddToCart }: Recomme
                     </div>
                 </div>
             ) : recommendation ? (
-                <div className="bg-white rounded-xl p-4 border border-gray-200">
+                <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+                    {/* Reason Box */}
+                    {recommendation.reason && (
+                        <div className="mb-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                            <div className="flex items-start gap-2">
+                                <svg className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p className="text-sm text-gray-700 leading-relaxed">
+                                    <span className="font-semibold text-purple-900">Why we suggest this: </span>
+                                    {recommendation.reason}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Product Info */}
                     <div className="flex items-start gap-3">
                         <div className="flex-1">
-                            <p className="text-xs text-gray-500 mb-1">Recommended for you</p>
-                            <h4 className="font-bold text-gray-800 mb-1">{recommendation.name}</h4>
-                            <p className="text-sm text-gray-600 mb-2">{recommendation.description}</p>
+                            <h4 className="font-bold text-gray-900 mb-1 text-lg">{recommendation.name}</h4>
+                            <p className="text-sm text-gray-600 mb-3">{recommendation.description}</p>
                             <div className="flex items-center gap-2">
-                                <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">
+                                <span className="text-xs px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full font-medium">
                                     {recommendation.category}
                                 </span>
                                 <span className="text-xs text-gray-500">
@@ -81,14 +96,17 @@ export default function RecommendationWidget({ cartItems, onAddToCart }: Recomme
                                 </span>
                             </div>
                         </div>
-                        <div className="text-right">
-                            <p className="text-xl font-bold text-indigo-600 mb-2">
+                        <div className="text-right flex flex-col items-end gap-2">
+                            <p className="text-2xl font-bold text-indigo-600">
                                 ${Number(recommendation.price).toFixed(2)}
                             </p>
                             <button
                                 onClick={() => onAddToCart(recommendation)}
-                                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 text-sm"
+                                className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2"
                             >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
                                 Add to Cart
                             </button>
                         </div>

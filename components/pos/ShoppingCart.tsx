@@ -43,64 +43,50 @@ export default function ShoppingCart({
                     items.map((item) => (
                         <div
                             key={item.productId}
-                            className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 hover:border-indigo-300 transition-colors"
+                            className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-indigo-300 transition-colors"
                         >
-                            <div className="flex-1">
-                                <h4 className="font-semibold text-gray-800">{item.name}</h4>
+                            <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-gray-800 truncate">{item.name}</h4>
                                 <p className="text-sm text-gray-500">${item.price.toFixed(2)} each</p>
                             </div>
 
-                            {/* Quantity Controls */}
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => onUpdateQuantity(item.productId, Math.max(1, item.quantity - 1))}
-                                    className="w-8 h-8 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center"
-                                    disabled={item.quantity <= 1}
-                                >
-                                    −
-                                </button>
-                                <span className="w-12 text-center font-semibold">{item.quantity}</span>
-                                <button
-                                    onClick={() => onUpdateQuantity(item.productId, item.quantity + 1)}
-                                    className="w-8 h-8 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center"
-                                    disabled={item.quantity >= item.stockQuantity}
-                                >
-                                    +
-                                </button>
+                            {/* Quantity Controls - Made More Obvious */}
+                            <div className="flex flex-col items-center gap-1">
+                                <span className="text-xs text-gray-500 font-medium">Qty</span>
+                                <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-300 p-1">
+                                    <button
+                                        onClick={() => onUpdateQuantity(item.productId, Math.max(1, item.quantity - 1))}
+                                        className="w-8 h-8 rounded-md bg-gray-100 hover:bg-red-100 hover:text-red-600 transition-colors flex items-center justify-center font-bold text-lg"
+                                        disabled={item.quantity <= 1}
+                                    >
+                                        −
+                                    </button>
+                                    <span className="w-12 text-center font-bold text-lg text-gray-900">{item.quantity}</span>
+                                    <button
+                                        onClick={() => onUpdateQuantity(item.productId, item.quantity + 1)}
+                                        className="w-8 h-8 rounded-md bg-gray-100 hover:bg-green-100 hover:text-green-600 transition-colors flex items-center justify-center font-bold text-lg"
+                                        disabled={item.quantity >= item.stockQuantity}
+                                    >
+                                        +
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Item Total */}
                             <div className="text-right min-w-24">
-                                <p className="font-bold text-gray-800">${(item.price * item.quantity).toFixed(2)}</p>
+                                <p className="font-bold text-gray-800 text-lg">${(item.price * item.quantity).toFixed(2)}</p>
                             </div>
 
                             {/* Remove Button */}
                             <button
                                 onClick={() => onRemoveItem(item.productId)}
-                                className="w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors flex items-center justify-center"
+                                className="w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors flex items-center justify-center font-bold"
                             >
                                 ✕
                             </button>
                         </div>
                     ))
                 )}
-            </div>
-
-            {/* Discount Input */}
-            <div className="border-t border-gray-200 pt-4 mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Discount Amount ($)
-                </label>
-                <input
-                    type="number"
-                    min="0"
-                    max={subtotal}
-                    step="0.01"
-                    value={discount}
-                    onChange={(e) => onDiscountChange(Number(e.target.value))}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 outline-none text-gray-900 placeholder:text-gray-500"
-                    placeholder="0.00"
-                />
             </div>
 
             {/* Totals */}
