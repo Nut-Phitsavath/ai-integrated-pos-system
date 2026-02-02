@@ -123,7 +123,7 @@ export default function DashboardPage() {
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
                                     {recentOrders.map((order) => (
-                                        <tr key={order.id} className="hover:bg-gray-50">
+                                        <tr key={order.id} className="hover:bg-gray-50 cursor-pointer transition-colors">
                                             <td className="px-6 py-3 font-mono text-sm text-indigo-600 font-medium">
                                                 {order.orderNumber}
                                             </td>
@@ -154,7 +154,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="p-0">
                             {topProducts.map((product, index) => (
-                                <div key={product.id} className="px-6 py-4 flex items-center justify-between border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                                <div key={product.id} className="px-6 py-4 flex items-center justify-between border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors cursor-pointer">
                                     <div className="flex items-center gap-4">
                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-sm ${index === 0 ? 'bg-yellow-400' : index === 1 ? 'bg-gray-400' : index === 2 ? 'bg-orange-400' : 'bg-indigo-100 text-indigo-600'
                                             }`}>

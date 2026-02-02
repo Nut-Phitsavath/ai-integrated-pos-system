@@ -26,9 +26,9 @@ export default function CategorySidebar({ selectedCategory, onSelectCategory }: 
                     <button
                         key={category.name}
                         onClick={() => onSelectCategory(category.name)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${selectedCategory === category.name
-                                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
-                                : 'text-gray-700 hover:bg-gray-100'
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 cursor-pointer ${selectedCategory === category.name
+                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                            : 'text-gray-700 hover:bg-gray-100'
                             }`}
                     >
                         <span className="text-xl">{category.icon}</span>

@@ -86,9 +86,9 @@ export default function PaymentModal({ isOpen, onClose, totalAmount, onComplete 
                             <button
                                 key={method}
                                 onClick={() => setPaymentMethod(method as any)}
-                                className={`py-3 px-4 rounded-xl font-bold transition-all duration-200 flex flex-col items-center gap-2 border-2 ${paymentMethod === method
-                                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg scale-105'
-                                        : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-300 hover:bg-indigo-50'
+                                className={`py-3 px-4 rounded-xl font-bold transition-all duration-200 flex flex-col items-center gap-2 border-2 cursor-pointer ${paymentMethod === method
+                                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg scale-105'
+                                    : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-300 hover:bg-indigo-50'
                                     }`}
                             >
                                 {method === 'CASH' && (

@@ -56,7 +56,7 @@ export default function ShoppingCart({
                                 <div className="flex items-center gap-1 bg-white rounded-md border border-gray-300 p-0.5">
                                     <button
                                         onClick={() => onUpdateQuantity(item.productId, Math.max(1, item.quantity - 1))}
-                                        className="w-7 h-7 rounded-md bg-gray-100 hover:bg-red-100 hover:text-red-600 transition-colors flex items-center justify-center font-bold text-base"
+                                        className="w-7 h-7 rounded-md bg-gray-100 hover:bg-red-100 hover:text-red-600 transition-colors flex items-center justify-center font-bold text-base cursor-pointer"
                                         disabled={item.quantity <= 1}
                                     >
                                         −
@@ -64,7 +64,7 @@ export default function ShoppingCart({
                                     <span className="w-10 text-center font-bold text-base text-gray-900">{item.quantity}</span>
                                     <button
                                         onClick={() => onUpdateQuantity(item.productId, item.quantity + 1)}
-                                        className="w-7 h-7 rounded-md bg-gray-100 hover:bg-green-100 hover:text-green-600 transition-colors flex items-center justify-center font-bold text-base"
+                                        className="w-7 h-7 rounded-md bg-gray-100 hover:bg-green-100 hover:text-green-600 transition-colors flex items-center justify-center font-bold text-base cursor-pointer"
                                         disabled={item.quantity >= item.stockQuantity}
                                     >
                                         +
@@ -80,7 +80,7 @@ export default function ShoppingCart({
                             {/* Remove Button */}
                             <button
                                 onClick={() => onRemoveItem(item.productId)}
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-md transition-colors flex items-center justify-center font-bold"
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-md transition-colors flex items-center justify-center font-bold cursor-pointer"
                             >
                                 ✕
                             </button>
