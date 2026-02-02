@@ -10,6 +10,7 @@ import ShoppingCart from '@/components/pos/ShoppingCart';
 import RecommendationWidget from '@/components/pos/RecommendationWidget';
 import OrderConfirmation from '@/components/pos/OrderConfirmation';
 import PaymentModal from '@/components/pos/PaymentModal';
+import HeaderMenu from '@/components/layout/HeaderMenu';
 import type { Product, CartItem } from '@/types';
 
 export default function CheckoutPage() {
@@ -137,41 +138,15 @@ export default function CheckoutPage() {
                             <h1 className="text-2xl font-bold text-gray-800">Smart POS System</h1>
                         </div>
                         <div className="flex items-center gap-4">
-                            <button
-                                onClick={() => router.push('/orders')}
-                                className="px-4 py-2 text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center gap-2 cursor-pointer"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                Order History
-                            </button>
-                            <button
-                                onClick={() => router.push('/inventory')}
-                                className="px-4 py-2 text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center gap-2 cursor-pointer"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                                </svg>
-                                Inventory
-                            </button>
-                            <button
-                                onClick={() => router.push('/dashboard')}
-                                className="px-4 py-2 text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center gap-2 cursor-pointer"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                </svg>
-                                Dashboard
-                            </button>
+                            <HeaderMenu />
                             <button
                                 onClick={handleLogout}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium flex items-center gap-2 cursor-pointer"
+                                className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors font-medium flex items-center gap-2 cursor-pointer border border-gray-200"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                 </svg>
-                                Logout
+                                <span className="hidden sm:inline">Logout</span>
                             </button>
                         </div>
                     </div>
