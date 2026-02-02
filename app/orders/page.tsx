@@ -1,134 +1,146 @@
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { redirect } from 'next/navigation';
+'use client';
 
-export default async function OrdersPage() {
-    const session = await auth();
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Receipt from '@/components/pos/Receipt';
 
-    if (!session) {
-        redirect('/login');
-    }
+export default function OrderHistoryPage() {
+    const [orders, setOrders] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [selectedOrder, setSelectedOrder] = useState<any>(null);
+    const router = useRouter();
 
-    const orders = await prisma.order.findMany({
-        where: {
-            userId: session.user.id,
-        },
-        include: {
-            items: {
-                include: {
-                    product: {
-                        select: {
-                            id: true,
-                            name: true,
-                        },
-                    },
-                },
-            },
-        },
-        orderBy: {
-            date: 'desc',
-        },
-    });
+    useEffect(() => {
+        fetchOrders();
+    }, []);
+
+    const fetchOrders = async () => {
+        try {
+            const response = await fetch('/api/orders');
+            if (response.ok) {
+                const data = await response.json();
+                setOrders(data.orders);
+            }
+        } catch (error) {
+            console.error('Failed to load orders', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+        <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <header className="bg-white shadow-md border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-6 py-4">
+            <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl">
-                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            <div className="p-2 bg-indigo-600 rounded-lg">
+                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                 </svg>
                             </div>
-                            <h1 className="text-2xl font-bold text-gray-800">Order History</h1>
+                            <h1 className="text-xl font-bold text-gray-900">Transaction History</h1>
                         </div>
-                        <a
-                            href="/checkout"
-                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium flex items-center gap-2"
+                        <button
+                            onClick={() => router.push('/checkout')}
+                            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors flex items-center gap-2"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
-                            Back to Checkout
-                        </a>
+                            Back to POS
+                        </button>
                     </div>
                 </div>
             </header>
 
-            {/* Orders List */}
-            <main className="max-w-7xl mx-auto px-6 py-8">
-                {orders.length === 0 ? (
-                    <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
-                        <svg className="w-20 h-20 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <p className="text-xl font-semibold text-gray-600 mb-2">No orders yet</p>
-                        <p className="text-gray-400">Complete your first transaction to see it here</p>
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {isLoading ? (
+                    <div className="flex justify-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                    </div>
+                ) : orders.length === 0 ? (
+                    <div className="text-center py-12 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-1">No Orders Found</h3>
+                        <p className="text-gray-500">Completed transactions will appear here.</p>
                     </div>
                 ) : (
-                    <div className="space-y-4">
-                        {orders.map((order) => (
-                            <div key={order.id} className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-                                {/* Order Header */}
-                                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-6 py-4 border-b border-gray-200">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <h3 className="text-lg font-bold text-gray-800">Order #{order.orderNumber}</h3>
-                                            <p className="text-sm text-gray-500">
-                                                {new Date(order.date).toLocaleString('en-US', {
-                                                    dateStyle: 'medium',
-                                                    timeStyle: 'short',
-                                                })}
-                                            </p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-xs text-gray-500">Total Amount</p>
-                                            <p className="text-2xl font-bold text-indigo-600">
-                                                ${Number(order.totalAmount).toFixed(2)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Order Items */}
-                                <div className="px-6 py-4">
-                                    <div className="space-y-2">
-                                        {order.items.map((item) => (
-                                            <div key={item.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                                                <div className="flex-1">
-                                                    <p className="font-semibold text-gray-800">{item.product.name}</p>
-                                                    <p className="text-sm text-gray-500">
-                                                        ${Number(item.price).toFixed(2)} × {item.quantity}
-                                                    </p>
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-semibold">
+                                        <th className="px-6 py-4">Order #</th>
+                                        <th className="px-6 py-4">Date</th>
+                                        <th className="px-6 py-4">Items</th>
+                                        <th className="px-6 py-4">Total</th>
+                                        <th className="px-6 py-4">Cashier</th>
+                                        <th className="px-6 py-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {orders.map((order) => (
+                                        <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <span className="font-mono font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded">
+                                                    {order.orderNumber}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-600">
+                                                {new Date(order.date).toLocaleString()}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-600">
+                                                {order.items.length} items
+                                                <span className="block text-xs text-gray-400 mt-1 truncate max-w-[200px]">
+                                                    {order.items.map((i: any) => i.product.name).join(', ')}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 font-bold text-gray-900">
+                                                ${order.totalAmount.toFixed(2)}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-600">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold text-gray-500">
+                                                        {order.user?.username.charAt(0).toUpperCase()}
+                                                    </div>
+                                                    {order.user?.username}
                                                 </div>
-                                                <p className="font-bold text-gray-800">
-                                                    ${(Number(item.price) * item.quantity).toFixed(2)}
-                                                </p>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Order Summary */}
-                                    <div className="mt-4 pt-4 border-t border-gray-200 space-y-1">
-                                        {Number(order.discount) > 0 && (
-                                            <div className="flex justify-between text-sm text-green-600">
-                                                <span>Discount Applied:</span>
-                                                <span className="font-semibold">-${Number(order.discount).toFixed(2)}</span>
-                                            </div>
-                                        )}
-                                        <div className="flex justify-between text-gray-600">
-                                            <span>Items:</span>
-                                            <span className="font-semibold">{order.items.length}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <button
+                                                    onClick={() => setSelectedOrder(order)}
+                                                    className="text-indigo-600 hover:text-indigo-900 font-medium text-sm border border-indigo-200 hover:border-indigo-400 rounded-lg px-3 py-1.5 transition-colors bg-white"
+                                                >
+                                                    View Receipt
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
             </main>
+
+            {/* Receipt Modal */}
+            {selectedOrder && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-xl shadow-2xl overflow-hidden max-w-md w-full max-h-[90vh] overflow-y-auto">
+                        <Receipt
+                            order={selectedOrder}
+                            onPrint={() => window.print()}
+                            onClose={() => setSelectedOrder(null)}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -8,6 +8,7 @@ import ProductSearch from '@/components/pos/ProductSearch';
 import CategorySidebar from '@/components/pos/CategorySidebar';
 import ShoppingCart from '@/components/pos/ShoppingCart';
 import RecommendationWidget from '@/components/pos/RecommendationWidget';
+import OrderConfirmation from '@/components/pos/OrderConfirmation';
 import type { Product, CartItem } from '@/types';
 
 export default function CheckoutPage() {
@@ -15,7 +16,8 @@ export default function CheckoutPage() {
     const [discount, setDiscount] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
-    const [lastOrderNumber, setLastOrderNumber] = useState('');
+    const [completedOrder, setCompletedOrder] = useState<any>(null);
+    const [isOrderConfirmationOpen, setIsOrderConfirmationOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const router = useRouter();
 
@@ -67,19 +69,11 @@ export default function CheckoutPage() {
         setIsProcessing(true);
 
         try {
-            const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-            const total = Math.max(0, subtotal - discount);
-
-            const response = await fetch('/api/orders', {
+            const response = await fetch('/api/orders/complete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    items: cart.map((item) => ({
-                        productId: item.productId,
-                        quantity: item.quantity,
-                        price: item.price,
-                    })),
-                    totalAmount: total,
+                    cartItems: cart,
                     discount,
                 }),
             });
@@ -90,20 +84,22 @@ export default function CheckoutPage() {
             }
 
             const data = await response.json();
-            setLastOrderNumber(data.order.orderNumber);
+            setCompletedOrder(data.order);
+            setIsOrderConfirmationOpen(true);
 
-            // Clear cart and show success
+            // Clear cart
             setCart([]);
             setDiscount(0);
-            setShowSuccess(true);
-
-            // Hide success message after 3 seconds
-            setTimeout(() => setShowSuccess(false), 3000);
         } catch (error: any) {
             alert(error.message || 'Failed to complete checkout. Please try again.');
         } finally {
             setIsProcessing(false);
         }
+    };
+
+    const handleCloseConfirmation = () => {
+        setIsOrderConfirmationOpen(false);
+        setCompletedOrder(null);
     };
 
     const handleLogout = async () => {
@@ -213,20 +209,12 @@ export default function CheckoutPage() {
                 </div>
             </main>
 
-            {/* Success Toast */}
-            {showSuccess && (
-                <div className="fixed top-8 right-8 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl animate-bounce z-50">
-                    <div className="flex items-center gap-3">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <div>
-                            <p className="font-bold">Order Completed!</p>
-                            <p className="text-sm">Order #{lastOrderNumber}</p>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Order Confirmation Modal */}
+            <OrderConfirmation
+                order={completedOrder}
+                isOpen={isOrderConfirmationOpen}
+                onClose={handleCloseConfirmation}
+            />
         </div>
     );
 }
