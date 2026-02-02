@@ -35,8 +35,11 @@ export default function CheckoutPage() {
                             ? { ...item, quantity: item.quantity + 1 }
                             : item
                     );
+                } else {
+                    // Alert user if max stock reached
+                    alert(`Cannot add more. Only ${product.stockQuantity} in stock.`);
+                    return prevCart;
                 }
-                return prevCart;
             }
 
             // Add new item to cart
