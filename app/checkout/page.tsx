@@ -57,6 +57,18 @@ export default function CheckoutPage() {
         });
     };
 
+    const [taxRate, setTaxRate] = useState(0);
+
+    // Fetch settings on mount
+    useState(() => {
+        fetch('/api/settings')
+            .then(res => res.json())
+            .then(data => {
+                if (data.taxRate) setTaxRate(data.taxRate);
+            })
+            .catch(err => console.error('Failed to load settings', err));
+    });
+
     const handleUpdateQuantity = (productId: string, quantity: number) => {
         setCart((prevCart) =>
             prevCart.map((item) =>
@@ -121,7 +133,9 @@ export default function CheckoutPage() {
     };
 
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const total = Math.max(0, subtotal - discount);
+    const taxableAmount = Math.max(0, subtotal - discount);
+    const taxAmount = taxableAmount * (taxRate / 100);
+    const total = taxableAmount + taxAmount;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
@@ -187,6 +201,8 @@ export default function CheckoutPage() {
                             onRemoveItem={handleRemoveItem}
                             discount={discount}
                             onDiscountChange={setDiscount}
+                            taxRate={taxRate}
+                            taxAmount={taxAmount}
                         />
 
                         {/* Checkout Button */}

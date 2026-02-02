@@ -8,18 +8,22 @@ interface ShoppingCartProps {
     onRemoveItem: (productId: string) => void;
     discount: number;
     onDiscountChange: (discount: number) => void;
+    taxRate?: number;
+    taxAmount?: number;
 }
 
 export default function ShoppingCart({
     items,
     onUpdateQuantity,
     onRemoveItem,
-    discount,
+    discount, // Added 'discount' to destructuring
     onDiscountChange,
+    taxRate = 0,
+    taxAmount = 0
 }: ShoppingCartProps) {
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const discountAmount = discount;
-    const total = Math.max(0, subtotal - discountAmount);
+    const total = Math.max(0, subtotal - discountAmount) + taxAmount;
 
     return (
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
@@ -99,6 +103,12 @@ export default function ShoppingCart({
                     <div className="flex justify-between text-green-600">
                         <span>Discount:</span>
                         <span className="font-semibold">-${discountAmount.toFixed(2)}</span>
+                    </div>
+                )}
+                {taxRate > 0 && (
+                    <div className="flex justify-between text-gray-600">
+                        <span>Tax ({taxRate}%):</span>
+                        <span className="font-semibold">${taxAmount.toFixed(2)}</span>
                     </div>
                 )}
                 <div className="flex justify-between text-xl font-bold text-gray-800 pt-2 border-t border-gray-200">
