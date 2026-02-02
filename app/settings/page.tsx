@@ -129,8 +129,9 @@ export default function SettingsPage() {
                                 <div className="space-y-6 pt-6">
                                     <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Financial Settings</h3>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
+                                    <div className="grid grid-cols-1 gap-6">
+                                        {/* Currency symbol removed as per request */}
+                                        {/* <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Currency Symbol</label>
                                             <input
                                                 type="text"
@@ -141,7 +142,7 @@ export default function SettingsPage() {
                                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-900 bg-white font-mono"
                                                 placeholder="$"
                                             />
-                                        </div>
+                                        </div> */}
 
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Tax Rate (%)</label>

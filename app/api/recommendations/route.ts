@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { model } from '@/lib/gemini';
+import { generateContentWithFallback } from '@/lib/gemini';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
@@ -43,7 +43,7 @@ Respond in this exact JSON format:
 }`;
 
                 console.log(`🤖 Getting recommendation for: ${cartItem.name}`);
-                const result = await model.generateContent(prompt);
+                const result = await generateContentWithFallback(prompt);
                 const response = result.response;
                 const aiResponse = response.text().trim();
 
