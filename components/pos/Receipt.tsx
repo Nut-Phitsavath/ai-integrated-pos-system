@@ -76,6 +76,26 @@ export default function Receipt({ order, onPrint, onClose }: ReceiptProps) {
                     <span>TOTAL:</span>
                     <span>${order.totalAmount.toFixed(2)}</span>
                 </div>
+
+                {/* Payment Details */}
+                <div className="mt-4 pt-2 border-t border-dashed border-gray-400 text-sm">
+                    <div className="flex justify-between mb-1">
+                        <span className="font-semibold">Payment:</span>
+                        <span className="font-bold">{order.paymentMethod}</span>
+                    </div>
+                    {order.paymentMethod === 'CASH' && (
+                        <>
+                            <div className="flex justify-between mb-1">
+                                <span>Tendered:</span>
+                                <span>${order.amountPaid ? order.amountPaid.toFixed(2) : '-'}</span>
+                            </div>
+                            <div className="flex justify-between mb-1">
+                                <span>Change:</span>
+                                <span>${order.change ? order.change.toFixed(2) : '-'}</span>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
 
             {/* Footer */}

@@ -37,10 +37,13 @@ model Order {
   orderNumber String      @unique
   date        DateTime    @default(now())
   totalAmount Float
-  discount    Float       @default(0)
-  userId      String
-  user        User        @relation(fields: [userId], references: [id])
-  items       OrderItem[]
+  discount      Float       @default(0)
+  paymentMethod String      @default("CASH") // CASH, CARD, QR
+  amountPaid    Float       @default(0)
+  change        Float       @default(0)
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  items         OrderItem[]
 
   @@index([date])
   @@index([userId])

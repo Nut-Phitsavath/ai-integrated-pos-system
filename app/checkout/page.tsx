@@ -9,16 +9,18 @@ import CategorySidebar from '@/components/pos/CategorySidebar';
 import ShoppingCart from '@/components/pos/ShoppingCart';
 import RecommendationWidget from '@/components/pos/RecommendationWidget';
 import OrderConfirmation from '@/components/pos/OrderConfirmation';
+import PaymentModal from '@/components/pos/PaymentModal';
 import type { Product, CartItem } from '@/types';
 
 export default function CheckoutPage() {
     const [cart, setCart] = useState<CartItem[]>([]);
     const [discount, setDiscount] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
+    // const [showSuccess, setShowSuccess] = useState(false); // Unused
     const [completedOrder, setCompletedOrder] = useState<any>(null);
     const [isOrderConfirmationOpen, setIsOrderConfirmationOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('All');
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const router = useRouter();
 
     const handleAddToCart = (product: Product) => {
@@ -63,9 +65,13 @@ export default function CheckoutPage() {
         setCart((prevCart) => prevCart.filter((item) => item.productId !== productId));
     };
 
-    const handleCheckout = async () => {
+    const handleCheckout = () => {
         if (cart.length === 0) return;
+        setIsPaymentModalOpen(true);
+    };
 
+    const handlePaymentComplete = async (paymentMethod: string, amountPaid: number, change: number) => {
+        setIsPaymentModalOpen(false);
         setIsProcessing(true);
 
         try {
@@ -75,6 +81,9 @@ export default function CheckoutPage() {
                 body: JSON.stringify({
                     cartItems: cart,
                     discount,
+                    paymentMethod,
+                    amountPaid,
+                    change
                 }),
             });
 
@@ -214,6 +223,14 @@ export default function CheckoutPage() {
                 order={completedOrder}
                 isOpen={isOrderConfirmationOpen}
                 onClose={handleCloseConfirmation}
+            />
+
+            {/* Payment Modal */}
+            <PaymentModal
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+                totalAmount={total}
+                onComplete={handlePaymentComplete}
             />
         </div>
     );

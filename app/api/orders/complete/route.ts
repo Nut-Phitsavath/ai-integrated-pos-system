@@ -19,7 +19,7 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
-        const { cartItems, discount = 0 } = body;
+        const { cartItems, discount = 0, paymentMethod = 'CASH', amountPaid = 0, change = 0 } = body;
 
         if (!cartItems || cartItems.length === 0) {
             return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
@@ -47,8 +47,14 @@ export async function POST(request: Request) {
             calculatedTotal += product.price * item.quantity;
         }
 
-        // Apply discount (ensure it doesn't exceed total)
+        // Apply discount and finalize totals
         const finalTotal = Math.max(0, calculatedTotal - discount);
+
+        // Validate payment amount
+        if (amountPaid < finalTotal) {
+            return NextResponse.json({ error: 'Insufficient payment amount' }, { status: 400 });
+        }
+
         const orderNumber = generateOrderNumber();
 
         // 2. Process transaction (create order, items, update stock)
@@ -59,6 +65,9 @@ export async function POST(request: Request) {
                     orderNumber,
                     totalAmount: finalTotal,
                     discount,
+                    paymentMethod,
+                    amountPaid,
+                    change,
                     userId: session.user.id,
                 }
             });
