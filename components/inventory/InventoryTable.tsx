@@ -8,10 +8,11 @@ interface InventoryTableProps {
     onUpdateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
 }
 
-export default function InventoryTable({ products, onUpdateProduct }: InventoryTableProps) {
+export default function InventoryTable({ products, onUpdateProduct, onDeleteProduct }: InventoryTableProps & { onDeleteProduct: (id: string) => Promise<void> }) {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<{ price: string; stockQuantity: string }>({ price: '', stockQuantity: '' });
     const [isSaving, setIsSaving] = useState(false);
+    const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
     const handleEditClick = (product: Product) => {
         setEditingId(product.id);
@@ -41,12 +42,26 @@ export default function InventoryTable({ products, onUpdateProduct }: InventoryT
         }
     };
 
+    const handleDelete = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this product?')) return;
+
+        setIsDeleting(id);
+        try {
+            await onDeleteProduct(id);
+        } catch (error) {
+            alert('Failed to delete product');
+        } finally {
+            setIsDeleting(null);
+        }
+    };
+
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-semibold border-b border-gray-200">
                         <tr>
+                            <th className="px-6 py-4">Image</th>
                             <th className="px-6 py-4">Product</th>
                             <th className="px-6 py-4">Category</th>
                             <th className="px-6 py-4 text-right">Price</th>
@@ -60,23 +75,24 @@ export default function InventoryTable({ products, onUpdateProduct }: InventoryT
                             const isEditing = editingId === product.id;
                             const isLowStock = product.stockQuantity < 10;
                             const isOutOfStock = product.stockQuantity === 0;
+                            const isThisDeleting = isDeleting === product.id;
 
                             return (
                                 <tr
                                     key={product.id}
-                                    className={`hover:bg-gray-50 transition-colors ${isEditing ? 'bg-indigo-50/50' : ''}`}
+                                    className={`hover:bg-gray-50 transition-colors ${isEditing ? 'bg-indigo-50/50' : ''} ${isThisDeleting ? 'opacity-50' : ''}`}
                                 >
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-lg overflow-hidden border border-gray-200">
-                                                {product.imageUrl ? (
-                                                    <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    '📦'
-                                                )}
-                                            </div>
-                                            <div className="font-semibold text-gray-900">{product.name}</div>
+                                    <td className="px-6 py-4 w-20">
+                                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-xl overflow-hidden border border-gray-200 shrink-0">
+                                            {product.imageUrl ? (
+                                                <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                '📦'
+                                            )}
                                         </div>
+                                    </td>
+                                    <td className="px-6 py-4 font-semibold text-gray-900">
+                                        {product.name}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-500">
                                         <span className="inline-block px-2 py-1 bg-gray-100 rounded-md text-xs font-medium">
@@ -158,12 +174,27 @@ export default function InventoryTable({ products, onUpdateProduct }: InventoryT
                                                 </button>
                                             </div>
                                         ) : (
-                                            <button
-                                                onClick={() => handleEditClick(product)}
-                                                className="text-indigo-600 hover:text-indigo-900 font-medium text-sm px-3 py-1 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
-                                            >
-                                                Edit
-                                            </button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleEditClick(product)}
+                                                    className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
+                                                    title="Edit"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(product.id)}
+                                                    disabled={!!isDeleting}
+                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                                    title="Delete"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </div>
                                         )}
                                     </td>
                                 </tr>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import InventoryTable from '@/components/inventory/InventoryTable';
+import AddProductModal from '@/components/inventory/AddProductModal';
 import HeaderMenu from '@/components/layout/HeaderMenu';
 import type { Product } from '@/types';
 
@@ -11,6 +12,7 @@ export default function InventoryPage() {
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -55,13 +57,26 @@ export default function InventoryPage() {
 
             if (!res.ok) throw new Error('Failed to update');
 
-            const data = await res.json();
-
             // Update local state
             setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
         } catch (error) {
             console.error('Error updating product:', error);
-            throw error; // Re-throw to be handled by the table
+            throw error;
+        }
+    };
+
+    const handleDeleteProduct = async (id: string) => {
+        try {
+            const res = await fetch(`/api/products/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (!res.ok) throw new Error('Failed to delete');
+
+            setProducts(prev => prev.filter(p => p.id !== id));
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            throw error;
         }
     };
 
@@ -103,17 +118,55 @@ export default function InventoryPage() {
                         />
                     </div>
 
-                    {/* Summary Stats */}
-                    <div className="flex gap-4">
-                        <div className="bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                            <span className="text-sm font-medium text-gray-600">Low Stock:</span>
-                            <span className="font-bold text-gray-900">{products.filter(p => p.stockQuantity < 10).length}</span>
+                    <button
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="px-4 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2 cursor-pointer"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add New Product
+                    </button>
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-white px-4 py-3 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                            {products.length}
                         </div>
-                        <div className="bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                            <span className="text-sm font-medium text-gray-600">Total Items:</span>
-                            <span className="font-bold text-gray-900">{products.length}</span>
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium uppercase">Total Items</p>
+                            <p className="font-bold text-gray-900">Products</p>
+                        </div>
+                    </div>
+                    <div className="bg-white px-4 py-3 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold">
+                            {products.filter(p => p.stockQuantity === 0).length}
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium uppercase">Out of Stock</p>
+                            <p className="font-bold text-gray-900">Alerts</p>
+                        </div>
+                    </div>
+                    <div className="bg-white px-4 py-3 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold">
+                            {products.filter(p => p.stockQuantity < 10 && p.stockQuantity > 0).length}
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium uppercase">Low Stock</p>
+                            <p className="font-bold text-gray-900">Reorder</p>
+                        </div>
+                    </div>
+                    <div className="bg-white px-4 py-3 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold">
+                            $
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium uppercase">Total Value</p>
+                            <p className="font-bold text-gray-900">
+                                ${products.reduce((acc, p) => acc + (p.price * p.stockQuantity), 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -126,9 +179,16 @@ export default function InventoryPage() {
                     <InventoryTable
                         products={filteredProducts}
                         onUpdateProduct={handleUpdateProduct}
+                        onDeleteProduct={handleDeleteProduct}
                     />
                 )}
             </main>
+
+            <AddProductModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                onProductAdded={fetchProducts}
+            />
         </div>
     );
 }
