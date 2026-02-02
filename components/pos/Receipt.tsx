@@ -8,16 +8,24 @@ interface ReceiptProps {
 }
 
 export default function Receipt({ order, onPrint, onClose }: ReceiptProps) {
+    const [settings, setSettings] = React.useState<any>(null);
+
+    React.useEffect(() => {
+        fetch('/api/settings')
+            .then(res => res.json())
+            .then(data => setSettings(data))
+            .catch(err => console.error('Failed to load receipt settings', err));
+    }, []);
+
     if (!order) return null;
 
     return (
         <div className="bg-white p-8 max-w-sm mx-auto shadow-none print:shadow-none font-mono text-sm leading-relaxed text-gray-900">
             {/* Header */}
             <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold uppercase mb-2 text-black">Smart POS</h1>
-                <p className="text-gray-800 font-medium">123 Hardware Street</p>
-                <p className="text-gray-800 font-medium">Cityville, ST 12345</p>
-                <p className="text-gray-800 font-medium">(555) 123-4567</p>
+                <h1 className="text-2xl font-bold uppercase mb-2 text-black">{settings?.storeName || 'Smart POS'}</h1>
+                <p className="text-gray-800 font-medium whitespace-pre-line">{settings?.address || 'Store Address'}</p>
+                {settings?.phone && <p className="text-gray-800 font-medium">{settings.phone}</p>}
             </div>
 
             {/* Order Info */}

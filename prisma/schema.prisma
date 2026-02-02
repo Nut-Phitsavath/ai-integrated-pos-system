@@ -61,3 +61,13 @@ model OrderItem {
   @@index([orderId])
   @@index([productId])
 }
+
+model StoreSettings {
+  id        Int      @id @default(1)
+  storeName String   @default("Smart POS")
+  address   String   @default("123 Store St, City, Country")
+  phone     String?
+  taxRate   Float    @default(0)
+  currency  String   @default("$")
+  updatedAt DateTime @updatedAt
+}
