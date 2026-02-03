@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import type { Product, CartItem } from '@/types';
 
 interface Recommendation {
-    product: Product;
+    product: Product | null;
     reason: string;
+    tip: string;
     forItem: string; // Which cart item this recommendation is for
 }
 
@@ -97,38 +98,61 @@ export default function RecommendationWidget({ cartItems, onAddToCart }: Recomme
                                 </p>
                             </div>
 
-                            {/* Product Card */}
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="font-bold text-sm text-gray-900 mb-1">{rec.product.name}</h4>
-                                    <p className="text-xs text-gray-600 line-clamp-2 mb-2">
-                                        {rec.product.description || 'Quality hardware product'}
-                                    </p>
-                                    <div className="flex items-center gap-3">
-                                        <span className="inline-block px-2 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-700 rounded">
-                                            {rec.product.category}
-                                        </span>
-                                        <span className="text-xs text-gray-500">
-                                            {rec.product.stockQuantity} in stock
-                                        </span>
+                            {/* Tip Section - ALWAYS SHOW if available */}
+                            {rec.tip && (
+                                <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-3 mb-3 flex gap-2">
+                                    <svg className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                    </svg>
+                                    <div>
+                                        <p className="text-xs font-bold text-yellow-800 uppercase tracking-wide mb-0.5">Pro Tip</p>
+                                        <p className="text-xs text-yellow-900 leading-relaxed italic">
+                                            "{rec.tip}"
+                                        </p>
                                     </div>
                                 </div>
+                            )}
 
-                                <div className="flex flex-col items-end gap-2 shrink-0">
-                                    <div className="text-xl font-bold text-indigo-600">
-                                        ${rec.product.price.toFixed(2)}
+                            {/* Product Card OR Empty State */}
+                            {rec.product ? (
+                                <div className="flex items-start justify-between gap-3 pt-2 border-t border-gray-100">
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="font-bold text-sm text-gray-900 mb-1">{rec.product.name}</h4>
+                                        <p className="text-xs text-gray-600 line-clamp-2 mb-2">
+                                            {rec.product.description || rec.reason}
+                                        </p>
+                                        <div className="flex items-center gap-3">
+                                            <span className="inline-block px-2 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-700 rounded">
+                                                {rec.product.category}
+                                            </span>
+                                            <span className="text-xs text-gray-500">
+                                                {rec.product.stockQuantity} in stock
+                                            </span>
+                                        </div>
                                     </div>
-                                    <button
-                                        onClick={() => onAddToCart(rec.product)}
-                                        className="px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors flex items-center gap-1"
-                                    >
-                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                        </svg>
-                                        Add
-                                    </button>
+
+                                    <div className="flex flex-col items-end gap-2 shrink-0">
+                                        <div className="text-xl font-bold text-indigo-600">
+                                            ${rec.product.price.toFixed(2)}
+                                        </div>
+                                        <button
+                                            onClick={() => onAddToCart(rec.product!)}
+                                            className="px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors flex items-center gap-1"
+                                        >
+                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                            </svg>
+                                            Add
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="pt-2 border-t border-gray-100 text-center">
+                                    <p className="text-xs text-gray-500 italic">
+                                        No matching product in stock right now.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>

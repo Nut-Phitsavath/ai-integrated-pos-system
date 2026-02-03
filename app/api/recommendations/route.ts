@@ -23,6 +23,7 @@ export async function POST(request: Request) {
                 const prompt = `You are a helpful hardware store assistant. A customer just added "${cartItem.name}" to their cart.
 
 Based on this specific product, recommend ONE complementary product that would be useful.
+Also, provide a helpful "Pro Tip" related to using these items together or for the project they likely imply.
 
 Think about natural pairings:
 - Paint Roller → Paint or Painter's Tape
@@ -39,7 +40,8 @@ Only recommend products from these categories: Power Tools, Hand Tools, Building
 Respond in this exact JSON format:
 {
   "productName": "exact product name",
-  "reason": "brief 1-sentence explanation of why this complements ${cartItem.name}"
+  "reason": "brief 1-sentence explanation of why this complements ${cartItem.name}",
+  "tip": "A helpful 1-2 sentence tip for the user (e.g., 'Make sure to sand the surface before applying the second coat.')"
 }`;
 
                 console.log(`🤖 Getting recommendation for: ${cartItem.name}`);
@@ -65,6 +67,7 @@ Respond in this exact JSON format:
 
                 const recommendedProductName = parsedResponse.productName;
                 const reason = parsedResponse.reason;
+                const tip = parsedResponse.tip;
 
                 // Search for the product in database
                 const product = await prisma.product.findFirst({
@@ -106,7 +109,17 @@ Respond in this exact JSON format:
                                 category: altProduct.category,
                             },
                             reason: reason || 'AI-recommended complementary product',
+                            tip: tip || 'No tip available',
                             forItem: cartItem.name, // ATTRIBUTION!
+                        });
+                    } else {
+                        // NO PRODUCT FOUND - But we still have a valuable TIP!
+                        console.log(`💡 No product found for ${cartItem.name}, but returning TIP.`);
+                        recommendations.push({
+                            product: null,
+                            reason: reason,
+                            tip: tip || 'No tip available',
+                            forItem: cartItem.name,
                         });
                     }
                 } else {
@@ -121,6 +134,7 @@ Respond in this exact JSON format:
                             category: product.category,
                         },
                         reason: reason || 'AI-recommended complementary product',
+                        tip: tip || 'No tip available',
                         forItem: cartItem.name, // ATTRIBUTION!
                     });
                 }
