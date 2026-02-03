@@ -2,11 +2,13 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 export default function HeaderMenu() {
     const [isOpen, setIsOpen] = useState(false);
     const router = useRouter();
     const menuRef = useRef<HTMLDivElement>(null);
+    const { data: session } = useSession();
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -21,6 +23,23 @@ export default function HeaderMenu() {
     }, []);
 
     const handleNavigate = (path: string) => {
+        // RBAC Checks
+        const role = session?.user?.role;
+
+        // Admin Only Routes
+        if (path === '/settings' && role !== 'ADMIN') {
+            alert('⛔ Access Denied\n\nOnly Administrators can access Store Settings.');
+            setIsOpen(false);
+            return;
+        }
+
+        // Manager & Admin Routes
+        if ((path === '/dashboard' || path === '/inventory') && role !== 'ADMIN' && role !== 'MANAGER') {
+            alert('🔒 Access Restricted\n\nThis area is for Managers and Admins only.');
+            setIsOpen(false);
+            return;
+        }
+
         router.push(path);
         setIsOpen(false);
     };

@@ -146,11 +146,23 @@ export default function LoginPage() {
                         </button>
                     </form>
 
-                    {/* Demo Credentials */}
                     <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
                         <p className="text-xs font-semibold text-gray-600 mb-2">Demo Credentials:</p>
-                        <p className="text-xs text-gray-500">Username: <span className="font-mono font-semibold">officer1</span></p>
-                        <p className="text-xs text-gray-500">Password: <span className="font-mono font-semibold">password123</span></p>
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                            <div>
+                                <p className="font-bold">Owner</p>
+                                <p className="text-gray-500">owner</p>
+                            </div>
+                            <div>
+                                <p className="font-bold">Manager</p>
+                                <p className="text-gray-500">manager</p>
+                            </div>
+                            <div>
+                                <p className="font-bold">Cashier</p>
+                                <p className="text-gray-500">cashier</p>
+                            </div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2 text-center">Password for all: <span className="font-mono font-semibold">password123</span></p>
                     </div>
                 </div>
             </div>

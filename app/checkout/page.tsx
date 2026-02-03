@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import ProductGrid from '@/components/pos/ProductGrid';
@@ -61,13 +61,18 @@ export default function CheckoutPage() {
 
     // Fetch settings on mount
     useState(() => {
+        // This was causing the server-side error!
+    });
+
+    // Use useEffect for client-side data fetching
+    useEffect(() => {
         fetch('/api/settings')
             .then(res => res.json())
             .then(data => {
                 if (data.taxRate) setTaxRate(data.taxRate);
             })
             .catch(err => console.error('Failed to load settings', err));
-    });
+    }, []);
 
     const handleUpdateQuantity = (productId: string, quantity: number) => {
         setCart((prevCart) =>

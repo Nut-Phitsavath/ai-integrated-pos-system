@@ -20,18 +20,44 @@ export async function GET(request: Request) {
     }
 }
 
+import { auth } from '@/lib/auth';
+import { z } from 'zod';
+
+const createProductSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    category: z.string().optional(),
+    price: z.number().min(0, "Price must be positive"),
+    stockQuantity: z.number().int().min(0, "Stock must be non-negative"),
+    imageUrl: z.string().url().optional().or(z.literal('')),
+    description: z.string().optional(),
+});
+
 export async function POST(req: Request) {
     try {
-        const body = await req.json();
-        const { name, category, price, stockQuantity, imageUrl, description } = body;
+        const session = await auth();
 
-        // Validation
-        if (!name || typeof price !== 'number' || typeof stockQuantity !== 'number') {
+        // 1. Auth Check
+        if (!session?.user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // 2. Role Check (Admin Only)
+        if (session.user.role !== 'ADMIN') {
+            return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+        }
+
+        const body = await req.json();
+
+        // 3. Zod Validation
+        const result = createProductSchema.safeParse(body);
+        if (!result.success) {
             return NextResponse.json(
-                { error: 'Name, price and stock are required' },
+                { error: 'Validation Error', details: result.error.flatten() },
                 { status: 400 }
             );
         }
+
+        const { name, category, price, stockQuantity, imageUrl, description } = result.data;
 
         const product = await prisma.product.create({
             data: {
