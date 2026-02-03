@@ -4,11 +4,16 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import StatsCard from '@/components/dashboard/StatsCard';
 import HeaderMenu from '@/components/layout/HeaderMenu';
+import RevenueChart from '@/components/dashboard/RevenueChart';
+import BusyHoursChart from '@/components/dashboard/BusyHoursChart';
+import AiInsightsWidget from '@/components/dashboard/AiInsightsWidget';
 
 export default function DashboardPage() {
     const [stats, setStats] = useState<any>(null);
     const [topProducts, setTopProducts] = useState<any[]>([]);
     const [recentOrders, setRecentOrders] = useState<any[]>([]);
+    const [revenueData, setRevenueData] = useState<any[]>([]);
+    const [hourlyTraffic, setHourlyTraffic] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
@@ -21,6 +26,8 @@ export default function DashboardPage() {
                     setStats(data.stats);
                     setTopProducts(data.topProducts);
                     setRecentOrders(data.recentOrders);
+                    setRevenueData(data.revenueGraphData || []);
+                    setHourlyTraffic(data.hourlyTraffic || []);
                 }
             } catch (error) {
                 console.error('Failed to load dashboard data', error);
@@ -97,7 +104,7 @@ export default function DashboardPage() {
                         color="bg-purple-500"
                     />
                     {/* Inventory Link Card */}
-                    <div onClick={() => router.push('/inventory')}>
+                    <div onClick={() => router.push('/inventory')} className="cursor-pointer">
                         <StatsCard
                             title="Total Inventory"
                             value="Manage"
@@ -113,52 +120,25 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Recent Orders */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                            <h2 className="text-lg font-bold text-gray-800">Recent Transactions</h2>
-                            <button onClick={() => router.push('/orders')} className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
-                                View All
-                            </button>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-semibold border-b border-gray-100">
-                                    <tr>
-                                        <th className="px-6 py-3">Order #</th>
-                                        <th className="px-6 py-3">Amount</th>
-                                        <th className="px-6 py-3">Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100">
-                                    {recentOrders.map((order) => (
-                                        <tr key={order.id} className="hover:bg-gray-50 cursor-pointer transition-colors">
-                                            <td className="px-6 py-3 font-mono text-sm text-indigo-600 font-medium">
-                                                {order.orderNumber}
-                                            </td>
-                                            <td className="px-6 py-3 text-sm font-bold text-gray-900">
-                                                ${order.totalAmount.toFixed(2)}
-                                            </td>
-                                            <td className="px-6 py-3 text-xs text-gray-500">
-                                                {new Date(order.date).toLocaleDateString()}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {recentOrders.length === 0 && (
-                                        <tr>
-                                            <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
-                                                No recent transactions found.
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
+                {/* Charts Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                    <div className="lg:col-span-2 h-80">
+                        <RevenueChart data={revenueData} />
+                    </div>
+                    <div className="h-80">
+                        <AiInsightsWidget />
+                    </div>
+                </div>
+
+                {/* Bottom Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Hourly Traffic */}
+                    <div className="lg:col-span-1 h-fit">
+                        <BusyHoursChart data={hourlyTraffic} />
                     </div>
 
                     {/* Top Products */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden h-fit">
                         <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
                             <h2 className="text-lg font-bold text-gray-800">Top Selling Products</h2>
                         </div>
@@ -185,6 +165,49 @@ export default function DashboardPage() {
                                     No sales data available yet.
                                 </div>
                             )}
+                        </div>
+                    </div>
+
+                    {/* Recent Orders */}
+                    <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden h-fit">
+                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                            <h2 className="text-lg font-bold text-gray-800">Recent TXs</h2>
+                            <button onClick={() => router.push('/orders')} className="text-xs font-medium text-indigo-600 hover:text-indigo-800 uppercase tracking-wide">
+                                View All
+                            </button>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-semibold border-b border-gray-100">
+                                    <tr>
+                                        <th className="px-6 py-3">Order #</th>
+                                        <th className="px-6 py-3">Amt</th>
+                                        <th className="px-6 py-3">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {recentOrders.map((order) => (
+                                        <tr key={order.id} className="hover:bg-gray-50 cursor-pointer transition-colors">
+                                            <td className="px-6 py-3 font-mono text-xs text-indigo-600 font-medium">
+                                                {order.orderNumber}
+                                            </td>
+                                            <td className="px-6 py-3 text-sm font-bold text-gray-900">
+                                                ${order.totalAmount.toFixed(2)}
+                                            </td>
+                                            <td className="px-6 py-3 text-xs text-gray-500">
+                                                {new Date(order.date).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {recentOrders.length === 0 && (
+                                        <tr>
+                                            <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
+                                                No recent transactions found.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
