@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { Product } from '@/types';
+import { useToast } from '../ui/ToastProvider';
 
 interface ProductGridProps {
     onAddToCart: (product: Product) => void;
@@ -11,6 +12,7 @@ interface ProductGridProps {
 export default function ProductGrid({ onAddToCart, selectedCategory }: ProductGridProps) {
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const { showToast } = useToast();
 
     useEffect(() => {
         fetchProducts();
@@ -129,16 +131,19 @@ export default function ProductGrid({ onAddToCart, selectedCategory }: ProductGr
                                         ${product.price.toFixed(2)}
                                     </div>
                                     <div className={`text-xs font-medium ${product.stockQuantity === 0 ? 'text-red-500' :
-                                            product.stockQuantity < 10 ? 'text-orange-500' : 'text-green-600'
+                                        product.stockQuantity < 10 ? 'text-orange-500' : 'text-green-600'
                                         }`}>
                                         {product.stockQuantity === 0 ? 'Out of Stock' : `${product.stockQuantity} in stock`}
                                     </div>
                                 </div>
 
                                 <button
-                                    onClick={() => onAddToCart(product)}
+                                    onClick={() => {
+                                        onAddToCart(product);
+                                        showToast(`Added ${product.name} to cart`, 'success');
+                                    }}
                                     disabled={product.stockQuantity === 0}
-                                    className="px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer"
+                                    className="px-3 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer active:scale-95"
                                 >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

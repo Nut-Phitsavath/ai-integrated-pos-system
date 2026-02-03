@@ -55,21 +55,23 @@ export default function ShoppingCart({
                             </div>
 
                             {/* Quantity Controls - Made More Obvious */}
-                            <div className="flex flex-col items-center gap-0.5">
-                                <span className="text-xs text-gray-400 font-medium">Qty</span>
-                                <div className="flex items-center gap-1 bg-white rounded-md border border-gray-300 p-0.5">
+                            <div className="flex flex-col items-center gap-1">
+                                <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Qty</span>
+                                <div className="flex items-center gap-2 bg-white rounded-lg border-2 border-indigo-100 p-1 shadow-sm">
                                     <button
                                         onClick={() => onUpdateQuantity(item.productId, Math.max(1, item.quantity - 1))}
-                                        className="w-7 h-7 rounded-md bg-gray-100 hover:bg-red-100 hover:text-red-600 transition-colors flex items-center justify-center font-bold text-base cursor-pointer"
+                                        className="w-8 h-8 rounded-md bg-gray-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 border border-transparent transition-all flex items-center justify-center font-bold text-lg cursor-pointer active:scale-95"
                                         disabled={item.quantity <= 1}
+                                        aria-label="Decrease quantity"
                                     >
                                         −
                                     </button>
-                                    <span className="w-10 text-center font-bold text-base text-gray-900">{item.quantity}</span>
+                                    <span className="w-8 text-center font-bold text-lg text-gray-900">{item.quantity}</span>
                                     <button
                                         onClick={() => onUpdateQuantity(item.productId, item.quantity + 1)}
-                                        className="w-7 h-7 rounded-md bg-gray-100 hover:bg-green-100 hover:text-green-600 transition-colors flex items-center justify-center font-bold text-base cursor-pointer"
+                                        className="w-8 h-8 rounded-md bg-gray-300 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 border border-transparent transition-all flex items-center justify-center font-bold text-lg cursor-pointer active:scale-95"
                                         disabled={item.quantity >= item.stockQuantity}
+                                        aria-label="Increase quantity"
                                     >
                                         +
                                     </button>
