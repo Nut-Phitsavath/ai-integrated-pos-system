@@ -61,7 +61,7 @@ Return ONLY valid JSON string array: ["Insight 1", "Insight 2"]`;
         const text = result.response.text();
 
         // Parse JSON
-        const jsonMatch = text.match(/\[.*\]/s);
+        const jsonMatch = text.match(/\[[\s\S]*\]/);
         const insights = jsonMatch ? JSON.parse(jsonMatch[0]) : ["Sales are looking good!"];
 
         return NextResponse.json({ insights });

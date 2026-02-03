@@ -49,8 +49,6 @@ Respond in this exact JSON format:
                 const response = result.response;
                 const aiResponse = response.text().trim();
 
-                console.log(`✅ AI Response for ${cartItem.name}:`, aiResponse);
-
                 // Parse JSON response
                 const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
                 if (!jsonMatch) {
@@ -98,7 +96,6 @@ Respond in this exact JSON format:
                     }
 
                     if (altProduct) {
-                        console.log(`✅ Found alternative for ${cartItem.name}: ${altProduct.name}`);
                         recommendations.push({
                             product: {
                                 id: altProduct.id,
@@ -114,7 +111,6 @@ Respond in this exact JSON format:
                         });
                     } else {
                         // NO PRODUCT FOUND - But we still have a valuable TIP!
-                        console.log(`💡 No product found for ${cartItem.name}, but returning TIP.`);
                         recommendations.push({
                             product: null,
                             reason: reason,
@@ -123,7 +119,6 @@ Respond in this exact JSON format:
                         });
                     }
                 } else {
-                    console.log(`✅ Found exact match for ${cartItem.name}: ${product.name}`);
                     recommendations.push({
                         product: {
                             id: product.id,
@@ -144,7 +139,6 @@ Respond in this exact JSON format:
             }
         }
 
-        console.log(`📦 Returning ${recommendations.length} recommendations`);
         return NextResponse.json({ recommendations });
 
     } catch (error: any) {
