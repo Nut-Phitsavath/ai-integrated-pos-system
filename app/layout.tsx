@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Smart POS System",
+  title: "AI Integrated POS System",
   description: "AI-powered Point of Sale system with product recommendations",
 };
 

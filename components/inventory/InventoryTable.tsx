@@ -99,7 +99,7 @@ export default function InventoryTable({ products, onUpdateProduct, onDeleteProd
                                             {product.category}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-right font-mono font-medium">
+                                    <td className="px-6 py-4 text-right font-mono font-medium text-gray-900">
                                         {isEditing ? (
                                             <input
                                                 type="number"

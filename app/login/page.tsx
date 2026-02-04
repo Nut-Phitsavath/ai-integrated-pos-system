@@ -150,15 +150,15 @@ export default function LoginPage() {
                         <p className="text-xs font-semibold text-gray-600 mb-2">Demo Credentials:</p>
                         <div className="grid grid-cols-3 gap-2 text-xs">
                             <div>
-                                <p className="font-bold">Owner</p>
+                                <p className="font-bold text-gray-600">Owner</p>
                                 <p className="text-gray-500">owner</p>
                             </div>
                             <div>
-                                <p className="font-bold">Manager</p>
+                                <p className="font-bold text-gray-600">Manager</p>
                                 <p className="text-gray-500">manager</p>
                             </div>
                             <div>
-                                <p className="font-bold">Cashier</p>
+                                <p className="font-bold text-gray-600">Cashier</p>
                                 <p className="text-gray-500">cashier</p>
                             </div>
                         </div>

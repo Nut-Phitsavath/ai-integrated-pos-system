@@ -1,4 +1,4 @@
-# Smart POS System
+# AI Integrated POS System
 
 ![Project Banner](public/banner-placeholder.png)
 
