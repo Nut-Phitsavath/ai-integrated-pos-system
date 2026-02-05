@@ -11,140 +11,103 @@ export async function POST(request: Request) {
         console.log('Received cart items:', JSON.stringify(cartItems, null, 2));
 
         if (!cartItems || cartItems.length === 0) {
-            console.log('No cart items, returning empty array');
-            return NextResponse.json({ recommendations: [] });
+            console.log('No cart items, returning empty recommendation');
+            return NextResponse.json({ recommendation: null });
         }
 
-        // Generate recommendations for EACH cart item
-        const recommendations = [];
+        // Construct a summary of the cart
+        const cartSummary = cartItems.map((item: any) => `- ${item.name} (Qty: ${item.quantity})`).join('\n');
 
-        for (const cartItem of cartItems) {
-            try {
-                const prompt = `You are a helpful hardware store assistant. A customer just added "${cartItem.name}" to their cart.
+        const prompt = `You are an expert sales assistant at a hardware store / POS terminal.
+The customer has the following items in their cart:
+${cartSummary}
 
-Based on this specific product, recommend ONE complementary product that would be useful.
-Also, provide a helpful "Pro Tip" related to using these items together or for the project they likely imply.
+Based on this ENTIRE combination of items, recommend ONE single product that would be the best upsell or cross-sell.
+Focus on "Project Logic" - what are they trying to build or fix? What did they forget?
 
-Think about natural pairings:
-- Paint Roller → Paint or Painter's Tape
-- Tape Measure → Pencil or Level
-- Drill → Drill Bits or Safety Glasses
-- Lumber → Nails or Screws
-- Cement → Sand or Mixing Tools
-- Electrical Wire → Wire Nuts or Electrical Tape
-- PVC Pipe → PVC Cement or Fittings
-- Hand Tools → Work Gloves or Tool Belt
-
-Only recommend products from these categories: Power Tools, Hand Tools, Building Materials, Electrical, Plumbing, Paint, Safety, Hardware
+Rules:
+1. Recommend only ONE product.
+2. Ensure it is NOT already in the cart.
+3. It must be a physical product commonly found in a hardware/dept store.
+4. Provide a brief "Pro Tip" that connects the items.
 
 Respond in this exact JSON format:
 {
   "productName": "exact product name",
-  "reason": "brief 1-sentence explanation of why this complements ${cartItem.name}",
-  "tip": "A helpful 1-2 sentence tip for the user (e.g., 'Make sure to sand the surface before applying the second coat.')"
+  "reason": "brief explanation of why this completes their current project",
+  "tip": "helpful advice for using these products together"
 }`;
 
-                console.log(`🤖 Getting recommendation for: ${cartItem.name}`);
-                const result = await generateContentWithFallback(prompt);
-                const response = result.response;
-                const aiResponse = response.text().trim();
+        console.log('🤖 Sending prompt to AI...');
+        const result = await generateContentWithFallback(prompt);
+        const response = result.response;
+        const aiResponse = response.text().trim();
+        console.log('🤖 AI Response:', aiResponse);
 
-                // Parse JSON response
-                const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-                if (!jsonMatch) {
-                    console.error(`❌ No JSON found for ${cartItem.name}`);
-                    continue;
-                }
+        // Parse JSON response
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error('Failed to parse JSON from AI response');
+        }
 
-                const parsedResponse = JSON.parse(jsonMatch[0]);
+        const parsedResponse = JSON.parse(jsonMatch[0]);
+        const recommendedProductName = parsedResponse.productName;
 
-                if (!parsedResponse || !parsedResponse.productName) {
-                    console.error(`❌ Invalid response for ${cartItem.name}`);
-                    continue;
-                }
+        // Search for the product in database
+        // We try to find the best match for the recommended name
+        let product = await prisma.product.findFirst({
+            where: {
+                name: { contains: recommendedProductName },
+                stockQuantity: { gt: 0 },
+                id: { notIn: cartItems.map((item: any) => item.productId) },
+            },
+        });
 
-                const recommendedProductName = parsedResponse.productName;
-                const reason = parsedResponse.reason;
-                const tip = parsedResponse.tip;
-
-                // Search for the product in database
-                const product = await prisma.product.findFirst({
+        // Fallback: simple keyword search if exact match fails
+        if (!product) {
+            const keywords = recommendedProductName.split(' ').filter((w: string) => w.length > 3);
+            for (const keyword of keywords) {
+                product = await prisma.product.findFirst({
                     where: {
-                        name: { contains: recommendedProductName },
+                        name: { contains: keyword },
                         stockQuantity: { gt: 0 },
                         id: { notIn: cartItems.map((item: any) => item.productId) },
                     },
                 });
-
-                if (!product) {
-                    // Try keyword search
-                    const keywords = recommendedProductName.split(' ');
-                    let altProduct = null;
-
-                    for (const keyword of keywords) {
-                        if (keyword.length < 3) continue;
-
-                        altProduct = await prisma.product.findFirst({
-                            where: {
-                                name: { contains: keyword },
-                                stockQuantity: { gt: 0 },
-                                id: { notIn: cartItems.map((item: any) => item.productId) },
-                            },
-                        });
-
-                        if (altProduct) break;
-                    }
-
-                    if (altProduct) {
-                        recommendations.push({
-                            product: {
-                                id: altProduct.id,
-                                name: altProduct.name,
-                                price: Number(altProduct.price),
-                                description: altProduct.description,
-                                stockQuantity: altProduct.stockQuantity,
-                                category: altProduct.category,
-                            },
-                            reason: reason || 'AI-recommended complementary product',
-                            tip: tip || 'No tip available',
-                            forItem: cartItem.name, // ATTRIBUTION!
-                        });
-                    } else {
-                        // NO PRODUCT FOUND - But we still have a valuable TIP!
-                        recommendations.push({
-                            product: null,
-                            reason: reason,
-                            tip: tip || 'No tip available',
-                            forItem: cartItem.name,
-                        });
-                    }
-                } else {
-                    recommendations.push({
-                        product: {
-                            id: product.id,
-                            name: product.name,
-                            price: Number(product.price),
-                            description: product.description,
-                            stockQuantity: product.stockQuantity,
-                            category: product.category,
-                        },
-                        reason: reason || 'AI-recommended complementary product',
-                        tip: tip || 'No tip available',
-                        forItem: cartItem.name, // ATTRIBUTION!
-                    });
-                }
-            } catch (itemError: any) {
-                console.error(`Error processing ${cartItem.name}:`, itemError.message);
-                continue;
+                if (product) break;
             }
         }
 
-        return NextResponse.json({ recommendations });
+        let finalRecommendation = null;
+
+        if (product) {
+            finalRecommendation = {
+                product: {
+                    id: product.id,
+                    name: product.name,
+                    price: Number(product.price),
+                    description: product.description,
+                    stockQuantity: product.stockQuantity,
+                    category: product.category,
+                },
+                reason: parsedResponse.reason,
+                tip: parsedResponse.tip
+            };
+        } else {
+            // If we can't find the product, we can still return the tip/reason but without a product link
+            // Or we just return nothing to avoid confusion.
+            // Requirement says: "The system will then check if this recommended item exists... before displaying it."
+            // So if not found, we return null.
+            console.log(`❌ Recommended product "${recommendedProductName}" not found in stock.`);
+            return NextResponse.json({ recommendation: null });
+        }
+
+        return NextResponse.json({ recommendation: finalRecommendation });
 
     } catch (error: any) {
         console.error('❌ Recommendation API failed:', error.message);
         return NextResponse.json({
-            recommendations: [],
+            recommendation: null,
             error: 'AI recommendation service temporarily unavailable'
         });
     }
