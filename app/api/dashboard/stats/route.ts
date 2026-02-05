@@ -141,7 +141,7 @@ export async function GET() {
             hourlyTraffic
         });
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Dashboard stats error:', error);
         return NextResponse.json({ error: 'Failed to fetch stats' }, { status: 500 });
     }

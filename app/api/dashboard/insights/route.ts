@@ -66,7 +66,7 @@ Return ONLY valid JSON string array: ["Insight 1", "Insight 2"]`;
 
         return NextResponse.json({ insights });
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Insights API error:', error);
         return NextResponse.json({ insights: ["Unable to generate insights right now."] });
     }

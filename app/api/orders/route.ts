@@ -38,7 +38,7 @@ export async function GET(request: Request) {
 
         return NextResponse.json({ orders });
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Failed to fetch orders:', error);
         return NextResponse.json(
             { error: 'Failed to fetch orders' },

@@ -91,7 +91,7 @@ export default function OrderHistoryPage() {
                                             <td className="px-6 py-4 text-sm text-gray-600">
                                                 {order.items.length} items
                                                 <span className="block text-xs text-gray-400 mt-1 truncate max-w-[200px]">
-                                                    {order.items.map((i: any) => i.product.name).join(', ')}
+                                                    {order.items.map((i: { product: { name: string } }) => i.product.name).join(', ')}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 font-bold text-gray-900">

@@ -11,7 +11,6 @@ export async function POST(request: Request) {
         console.log('Received cart items:', JSON.stringify(cartItems, null, 2));
 
         if (!cartItems || cartItems.length === 0) {
-            console.log('No cart items, returning empty recommendation');
             return NextResponse.json({ recommendation: null });
         }
 
@@ -33,7 +32,6 @@ export async function POST(request: Request) {
         });
 
         if (availableProducts.length === 0) {
-            console.log('No other products available in stock');
             return NextResponse.json({ recommendation: null });
         }
 
@@ -70,11 +68,9 @@ OR if nothing is relevant:
   "found": false
 }`;
 
-        console.log('🤖 Sending prompt to AI with inventory context...');
         const result = await generateContentWithFallback(prompt);
         const response = result.response;
         const aiResponse = response.text().trim();
-        console.log('🤖 AI Response:', aiResponse);
 
         // Parse JSON response
         const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
@@ -85,7 +81,6 @@ OR if nothing is relevant:
         const parsedResponse = JSON.parse(jsonMatch[0]);
 
         if (!parsedResponse.found || !parsedResponse.productId) {
-            console.log('AI could not find a relevant product in inventory.');
             return NextResponse.json({ recommendation: null });
         }
 
@@ -95,7 +90,6 @@ OR if nothing is relevant:
         });
 
         if (!product || product.stockQuantity <= 0) {
-            console.log('AI recommended product not found or out of stock (race condition).');
             return NextResponse.json({ recommendation: null });
         }
 
@@ -114,8 +108,8 @@ OR if nothing is relevant:
 
         return NextResponse.json({ recommendation: finalRecommendation });
 
-    } catch (error: any) {
-        console.error('❌ Recommendation API failed:', error.message);
+    } catch (error) {
+        console.error('❌ Recommendation API failed:', (error as any).message);
         return NextResponse.json({
             recommendation: null,
             error: 'AI recommendation service temporarily unavailable'

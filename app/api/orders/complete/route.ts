@@ -136,10 +136,10 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ success: true, order: fullOrder });
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Order completion error:', error);
         return NextResponse.json(
-            { error: 'Failed to process order', details: error.message },
+            { error: 'Failed to process order', details: (error as any).message },
             { status: 500 }
         );
     }

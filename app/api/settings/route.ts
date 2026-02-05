@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
     try {
-        let settings = await prisma.storeSettings.findFirst();
+        const settings = await prisma.storeSettings.findFirst();
 
         if (!settings) {
             // Default fallback if not in DB yet (though SQL script should have added it)

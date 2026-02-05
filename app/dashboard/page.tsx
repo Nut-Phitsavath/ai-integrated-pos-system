@@ -8,8 +8,14 @@ import RevenueChart from '@/components/dashboard/RevenueChart';
 import BusyHoursChart from '@/components/dashboard/BusyHoursChart';
 import AiInsightsWidget from '@/components/dashboard/AiInsightsWidget';
 
+interface DashboardStats {
+    totalRevenue: number;
+    totalOrders: number;
+    averageOrderValue: number;
+}
+
 export default function DashboardPage() {
-    const [stats, setStats] = useState<any>(null);
+    const [stats, setStats] = useState<DashboardStats | null>(null);
     const [topProducts, setTopProducts] = useState<any[]>([]);
     const [recentOrders, setRecentOrders] = useState<any[]>([]);
     const [revenueData, setRevenueData] = useState<any[]>([]);

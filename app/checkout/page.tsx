@@ -142,8 +142,8 @@ export default function CheckoutPage() {
             // Clear cart
             setCart([]);
             setDiscount(0);
-        } catch (error: any) {
-            toast.error(error.message || 'Failed to complete checkout. Please try again.');
+        } catch (error) {
+            toast.error((error as any).message || 'Failed to complete checkout. Please try again.');
         } finally {
             setIsProcessing(false);
         }
