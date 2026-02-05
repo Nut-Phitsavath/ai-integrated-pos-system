@@ -47,17 +47,25 @@ export async function POST(request: Request) {
             calculatedTotal += product.price * item.quantity;
         }
 
-        // Apply discount and finalize totals
-        const finalTotal = Math.max(0, calculatedTotal - discount);
+        // 2. Fetch Tax Settings
+        const settings = await prisma.storeSettings.findFirst();
+        const taxRate = settings?.taxRate || 0;
 
-        // Validate payment amount
-        if (amountPaid < finalTotal) {
-            return NextResponse.json({ error: 'Insufficient payment amount' }, { status: 400 });
+        // 3. Apply Discount and Tax
+        const subtotalAfterDiscount = Math.max(0, calculatedTotal - discount);
+        const taxAmount = subtotalAfterDiscount * (taxRate / 100);
+        const finalTotal = subtotalAfterDiscount + taxAmount;
+
+        // Validate payment amount (allow small floating point difference)
+        if (amountPaid < finalTotal - 0.01) {
+            return NextResponse.json({
+                error: `Insufficient payment amount. Total is ${finalTotal.toFixed(2)}`
+            }, { status: 400 });
         }
 
         const orderNumber = generateOrderNumber();
 
-        // 2. Process transaction (create order, items, update stock)
+        // 4. Process transaction (create order, items, update stock)
         const order = await prisma.$transaction(async (tx) => {
             // Create Order
             const newOrder = await tx.order.create({
@@ -101,7 +109,7 @@ export async function POST(request: Request) {
             return newOrder;
         });
 
-        // 3. Fetch full order details to return
+        // 5. Fetch full order details to return
         const fullOrder = await prisma.order.findUnique({
             where: { id: order.id },
             include: {

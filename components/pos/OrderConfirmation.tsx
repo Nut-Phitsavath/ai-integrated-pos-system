@@ -41,16 +41,52 @@ export default function OrderConfirmation({ order, isOpen, onClose }: OrderConfi
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">Transaction Complete!</h2>
                         <p className="text-gray-500 mb-6">Order <span className="font-mono font-bold text-gray-700">{order.orderNumber}</span> has been processed successfully.</p>
 
-                        <div className="bg-gray-50 rounded-xl p-4 mb-8">
-                            <div className="flex justify-between text-sm mb-2">
-                                <span className="text-gray-500">Total Amount</span>
-                                <span className="font-bold text-gray-900">${order.totalAmount.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">Change Due</span>
-                                <span className="font-bold text-gray-900">$0.00</span>
-                                {/* Placeholder for change calculation if we add cash payment input later */}
-                            </div>
+                        <div className="bg-gray-50 rounded-xl p-4 mb-6 text-sm space-y-2">
+                            {/* Breakdown Calculations */}
+                            {(() => {
+                                const trueSubtotal = order.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+                                const calculatedTax = order.totalAmount - (trueSubtotal - order.discount);
+
+                                return (
+                                    <>
+                                        <div className="flex justify-between text-gray-500">
+                                            <span>Subtotal</span>
+                                            <span>${trueSubtotal.toFixed(2)}</span>
+                                        </div>
+                                        {order.discount > 0 && (
+                                            <div className="flex justify-between text-gray-500">
+                                                <span>Discount</span>
+                                                <span>-${order.discount.toFixed(2)}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between text-gray-500">
+                                            <span>Tax</span>
+                                            <span>${Math.max(0, calculatedTax).toFixed(2)}</span>
+                                        </div>
+                                        <div className="border-t border-gray-200 my-2 pt-2 flex justify-between font-bold text-gray-900 text-base">
+                                            <span>Total Amount</span>
+                                            <span>${order.totalAmount.toFixed(2)}</span>
+                                        </div>
+
+                                        <div className="border-t border-gray-200 my-2 pt-2"></div>
+
+                                        <div className="flex justify-between text-gray-500">
+                                            <span>Payment Method</span>
+                                            <span className="font-medium text-gray-900">{order.paymentMethod}</span>
+                                        </div>
+                                        {order.paymentMethod === 'CASH' && (
+                                            <div className="flex justify-between text-gray-500">
+                                                <span>Cash Tendered</span>
+                                                <span className="font-medium text-gray-900">${(order.amountPaid || 0).toFixed(2)}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between text-gray-800 font-bold bg-green-50 p-2 rounded-lg mt-1">
+                                            <span>Change Due</span>
+                                            <span className="text-green-600">${(order.change || 0).toFixed(2)}</span>
+                                        </div>
+                                    </>
+                                );
+                            })()}
                         </div>
 
                         <div className="flex flex-col gap-3">

@@ -72,20 +72,33 @@ export default function Receipt({ order, onPrint, onClose }: ReceiptProps) {
 
             {/* Totals */}
             <div className="border-b-2 border-dashed border-gray-800 pb-4 mb-6 text-gray-900">
-                <div className="flex justify-between mb-2">
-                    <span className="font-bold">Subtotal:</span>
-                    <span className="font-bold">${(order.totalAmount + order.discount).toFixed(2)}</span>
-                </div>
-                {order.discount > 0 && (
-                    <div className="flex justify-between mb-2 text-gray-900">
-                        <span className="font-bold">Discount:</span>
-                        <span className="font-bold">-${order.discount.toFixed(2)}</span>
-                    </div>
-                )}
-                <div className="flex justify-between text-xl font-black mt-4 border-t-2 border-gray-800 pt-2">
-                    <span>TOTAL:</span>
-                    <span>${order.totalAmount.toFixed(2)}</span>
-                </div>
+                {(() => {
+                    const trueSubtotal = order.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+                    const calculatedTax = order.totalAmount - (trueSubtotal - order.discount);
+
+                    return (
+                        <>
+                            <div className="flex justify-between mb-2">
+                                <span className="font-bold">Subtotal:</span>
+                                <span className="font-bold">${trueSubtotal.toFixed(2)}</span>
+                            </div>
+                            {order.discount > 0 && (
+                                <div className="flex justify-between mb-2 text-gray-900">
+                                    <span className="font-bold">Discount:</span>
+                                    <span className="font-bold">-${order.discount.toFixed(2)}</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between mb-2 text-gray-900">
+                                <span className="font-bold">Tax:</span>
+                                <span className="font-bold">${Math.max(0, calculatedTax).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-xl font-black mt-4 border-t-2 border-gray-800 pt-2">
+                                <span>TOTAL:</span>
+                                <span>${order.totalAmount.toFixed(2)}</span>
+                            </div>
+                        </>
+                    );
+                })()}
 
                 {/* Payment Details */}
                 <div className="mt-4 pt-2 border-t border-dashed border-gray-400 text-sm">

@@ -74,6 +74,27 @@ export default function CheckoutPage() {
             .catch(err => console.error('Failed to load settings', err));
     }, []);
 
+    // Global Keyboard Shortcuts
+    useEffect(() => {
+        const handleGlobalKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'F2') {
+                e.preventDefault();
+                document.getElementById('product-search-input')?.focus();
+            } else if (e.key === 'F4') {
+                if (cart.length > 0 && !isPaymentModalOpen && !isOrderConfirmationOpen) {
+                    e.preventDefault();
+                    handleCheckout();
+                }
+            } else if (e.key === 'Escape') {
+                if (isPaymentModalOpen) setIsPaymentModalOpen(false);
+                if (isOrderConfirmationOpen) handleCloseConfirmation();
+            }
+        };
+
+        window.addEventListener('keydown', handleGlobalKeyDown);
+        return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    }, [cart.length, isPaymentModalOpen, isOrderConfirmationOpen]);
+
     const handleUpdateQuantity = (productId: string, quantity: number) => {
         setCart((prevCart) =>
             prevCart.map((item) =>
@@ -143,13 +164,13 @@ export default function CheckoutPage() {
     const total = taxableAmount + taxAmount;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+        <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50">
             {/* Header */}
             <header className="bg-white shadow-md border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl">
+                            <div className="p-2 bg-linear-to-br from-indigo-600 to-purple-600 rounded-xl">
                                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                 </svg>
@@ -214,7 +235,7 @@ export default function CheckoutPage() {
                         <button
                             onClick={handleCheckout}
                             disabled={cart.length === 0 || isProcessing}
-                            className="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                            className="w-full py-4 px-6 bg-linear-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                         >
                             {isProcessing ? (
                                 <span className="flex items-center justify-center">
