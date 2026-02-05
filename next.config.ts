@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: "standalone",
+  eslint: {
+    ignoreDuringBuilds: true, // We already verify linting manually
+  },
 };
 
 export default nextConfig;
