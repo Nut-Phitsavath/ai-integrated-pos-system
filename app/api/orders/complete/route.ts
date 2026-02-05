@@ -95,15 +95,23 @@ export async function POST(request: Request) {
                     }
                 });
 
-                // Decrement stock
-                await tx.product.update({
-                    where: { id: item.productId },
-                    data: {
-                        stockQuantity: {
-                            decrement: item.quantity
+                // Decrement stock ATOMICALLY with check
+                // This prevents race conditions where stock drops below required amount between reading and writing
+                try {
+                    await tx.product.update({
+                        where: {
+                            id: item.productId,
+                            stockQuantity: { gte: item.quantity }
+                        },
+                        data: {
+                            stockQuantity: {
+                                decrement: item.quantity
+                            }
                         }
-                    }
-                });
+                    });
+                } catch (err) {
+                    throw new Error(`Insufficient stock for product ${product.name} during processing`);
+                }
             }
 
             return newOrder;
