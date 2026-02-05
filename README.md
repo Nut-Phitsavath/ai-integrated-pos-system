@@ -9,7 +9,7 @@
 A production-grade **Point of Sale (POS) System** engineered for speed and intelligence. 
 It combines a lightning-fast cashier interface with an **AI-powered Admin Dashboard** that provides actionable inventory insights.
 
-> **Live Demo**: [LINK_TO_YOUR_CLOUDFLARE_DEPLOYMENT]
+> **Live Demo**: [https://ai-integrated-pos-system-production.up.railway.app](https://ai-integrated-pos-system-production.up.railway.app)
 
 ---
 
