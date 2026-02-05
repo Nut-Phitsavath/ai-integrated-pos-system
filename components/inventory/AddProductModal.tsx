@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 interface AddProductModalProps {
     isOpen: boolean;
@@ -50,6 +51,7 @@ export default function AddProductModal({ isOpen, onClose, onProductAdded }: Add
             if (res.ok) {
                 onProductAdded();
                 onClose();
+                toast.success('Product added successfully');
                 // Reset form
                 setFormData({
                     name: '',
@@ -60,11 +62,11 @@ export default function AddProductModal({ isOpen, onClose, onProductAdded }: Add
                     description: ''
                 });
             } else {
-                alert('Failed to add product');
+                toast.error('Failed to add product');
             }
         } catch (error) {
             console.error(error);
-            alert('Error creating product');
+            toast.error('Error creating product');
         } finally {
             setIsLoading(false);
         }

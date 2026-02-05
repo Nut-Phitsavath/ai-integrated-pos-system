@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -47,7 +48,7 @@ export default function PaymentModal({ isOpen, onClose, totalAmount, onComplete 
         // Validation
         if (paymentMethod === 'CASH') {
             if (isNaN(finalAmountPaid) || finalAmountPaid < totalAmount) {
-                alert('Insufficient cash tendered.');
+                toast.error('Insufficient cash tendered.');
                 return;
             }
         } else {

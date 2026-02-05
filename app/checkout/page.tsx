@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import ProductGrid from '@/components/pos/ProductGrid';
@@ -38,7 +39,7 @@ export default function CheckoutPage() {
                     );
                 } else {
                     // Alert user if max stock reached
-                    alert(`Cannot add more. Only ${product.stockQuantity} in stock.`);
+                    toast.error(`Cannot add more. Only ${product.stockQuantity} in stock.`);
                     return prevCart;
                 }
             }
@@ -142,7 +143,7 @@ export default function CheckoutPage() {
             setCart([]);
             setDiscount(0);
         } catch (error: any) {
-            alert(error.message || 'Failed to complete checkout. Please try again.');
+            toast.error(error.message || 'Failed to complete checkout. Please try again.');
         } finally {
             setIsProcessing(false);
         }

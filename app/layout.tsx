@@ -19,6 +19,8 @@ export const metadata: Metadata = {
 
 import Providers from "@/components/Providers";
 
+import { Toaster } from 'react-hot-toast';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,6 +33,7 @@ export default function RootLayout({
       >
         <Providers>
           {children}
+          <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
         </Providers>
       </body>
     </html>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import type { Product } from '@/types';
 
 interface InventoryTableProps {
@@ -35,8 +36,9 @@ export default function InventoryTable({ products, onUpdateProduct, onDeleteProd
                 stockQuantity: parseInt(editForm.stockQuantity, 10),
             });
             setEditingId(null);
+            toast.success('Product updated successfully');
         } catch (error) {
-            alert('Failed to save changes');
+            toast.error('Failed to save changes');
         } finally {
             setIsSaving(false);
         }
@@ -48,8 +50,9 @@ export default function InventoryTable({ products, onUpdateProduct, onDeleteProd
         setIsDeleting(id);
         try {
             await onDeleteProduct(id);
+            toast.success('Product deleted');
         } catch (error) {
-            alert('Failed to delete product');
+            toast.error('Failed to delete product');
         } finally {
             setIsDeleting(null);
         }

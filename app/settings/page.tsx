@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 import HeaderMenu from '@/components/layout/HeaderMenu';
 
 export default function SettingsPage() {
@@ -49,13 +50,13 @@ export default function SettingsPage() {
             });
 
             if (res.ok) {
-                alert('Settings saved successfully!');
+                toast.success('Settings saved successfully!');
             } else {
-                alert('Failed to save settings');
+                toast.error('Failed to save settings');
             }
         } catch (error) {
             console.error('Error saving settings:', error);
-            alert('Error saving settings');
+            toast.error('Error saving settings');
         } finally {
             setIsSaving(false);
         }
