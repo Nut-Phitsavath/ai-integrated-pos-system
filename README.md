@@ -1,4 +1,4 @@
-# 🤖 AI Integrated POS System
+# AI Integrated POS System
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black)
@@ -9,11 +9,11 @@
 A production-grade **Point of Sale (POS) System** engineered for speed and intelligence. 
 It combines a lightning-fast cashier interface with an **AI-powered Admin Dashboard** that provides actionable inventory insights.
 
-> **🚀 Live Demo**: [LINK_TO_YOUR_CLOUDFLARE_DEPLOYMENT]
+> **Live Demo**: [LINK_TO_YOUR_CLOUDFLARE_DEPLOYMENT]
 
 ---
 
-## ⚡ Quick Start (Demo Credentials)
+## Quick Start (Demo Credentials)
 You can log in to the system using these pre-configured accounts:
 
 | Role | Username | Password | Access Level |
@@ -24,7 +24,7 @@ You can log in to the system using these pre-configured accounts:
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```mermaid
 graph TD
@@ -48,25 +48,25 @@ graph TD
     end
 ```
 
-## ✨ Key Features
+## Key Features
 
-### 🛒 High-Speed Point of Sale
+### High-Speed Point of Sale
 *   **Keyboard First**: F2 to Search, F4 to Pay, ESC to Cancel. Designed for mouse-free operation.
 *   **Stock-Aware**: Real-time validation preventing negative inventory sales.
 *   **Smart Cart**: Instant tax & discount calculations.
 
-### 🧠 AI-Driven Insights
+### AI-Driven Insights
 *   **Inventory Intelligence**: The system analyzes sales velocity and automatically suggests restocking orders.
 *   **Preventive Alerts**: Identifies "Dead Stock" and "Fast Movers" before they become issues.
 
-### 🛡️ Enterprise Grade
+### Enterprise Grade
 *   **Secure Auth**: Role-Based Access Control (RBAC) via middleware.
 *   **Transactions**: Atomic database operations ensure data integrity.
 *   **Audit**: Complete history of every transaction.
 
 ---
 
-## 🛠️ Deployment (Cloudflare)
+## Deployment (Cloudflare)
 
 This project is optimized for **Cloudflare Pages** + **Turso DB** to ensure global availability (including regions where Vercel/Netlify are restricted).
 
@@ -82,7 +82,7 @@ See `DEPLOYMENT.md` for the full step-by-step guide.
 
 ---
 
-## 💻 Local Development
+## Local Development
 
 1.  **Clone & Install**
     ```bash
@@ -103,7 +103,7 @@ See `DEPLOYMENT.md` for the full step-by-step guide.
 
 ---
 
-## 🔮 Future Roadmap
+## Future Roadmap
 *   [ ] Multi-Branch Support
 *   [ ] Offline Mode (PWA)
 *   [ ] Bluetooth Thermal Printer Integration
